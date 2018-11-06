@@ -47,8 +47,8 @@ end)
 STDERR.puts 'Be sure to run ruby_robot_grpc_server before attempting to use this proxy...'
 
 # Call a method defined in :ruby_robot on the proxy
-puts 'gRPC #remove result: ' + proxy.remove(nil).to_s
-puts 'gRPC #report result: ' + proxy.report(nil).to_s
+puts 'gRPC #remove result: ' + proxy.remove.to_s
+puts 'gRPC #report result: ' + proxy.report.to_s
 
 # GraphQL
 gql_query_doc = <<GRAPHQL_QUERY

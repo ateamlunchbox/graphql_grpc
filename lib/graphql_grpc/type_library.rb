@@ -65,11 +65,16 @@ module GraphqlGrpc
     end
 
     def to_gql_type(prefix = '')
+      if entries.any?
       <<EOF
 #{input_or_type(prefix)} #{prefix}#{type_name} {
   #{types(prefix).join("\n  ")}
 }
 EOF
+      else
+        # For now, treat empty types as scalars
+        "scalar #{prefix}#{type_name}"
+      end
     end
   end
 
