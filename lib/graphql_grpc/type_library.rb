@@ -230,7 +230,15 @@ module GraphqlGrpc
       # as the argument for a gRPC call that is being mapped to a
       # GraphQL query.
       @descriptors.delete_if do |key, descriptor|
-        descriptor.respond_to?(:sub_types) and descriptor.sub_types.empty?
+
+        if (descriptor.name.start_with?('google.protobuf') &&
+            descriptor.respond_to?(:sub_types) &&
+            descriptor.sub_types.empty?
+        )
+          true
+        else
+          false
+        end
       end
     end
   end

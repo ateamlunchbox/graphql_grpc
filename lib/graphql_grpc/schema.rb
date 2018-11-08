@@ -20,23 +20,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+require 'google/protobuf/empty_pb'
+
 module GraphqlGrpc
   module Schema
+    # TODO: Find better way to detect queries
+    # Currently look for methods named 'get' or with no args
+    def query?(name_sym, rpc_desc)
+      name_sym.to_s.start_with?('get') ||
+        rpc_desc.rpc_desc.input == Google::Protobuf::Empty
+    end
+
     def gql_mutations
-      # TODO: Find better way to detect mutations
-      @function_map.reject do |name_sym, _rpc_des|
-        name_sym.to_s.start_with?('get') ||
-          _rpc_des.rpc_desc.input == Google::Protobuf::Empty
-      end
+      @function_map.reject { |name_sym, rpc_desc| query?(name_sym, rpc_desc) }
     end
 
     def gql_queries
-      # TODO: Find better way to detect queries
-      # Currently look for methods named 'get' or with no args
-      @function_map.select do |name_sym, _rpc_des|
-        name_sym.to_s.start_with?('get') ||
-          _rpc_des.rpc_desc.input == Google::Protobuf::Empty
-      end
+      @function_map.select { |name_sym, rpc_desc| query?(name_sym, rpc_desc) }
     end
 
     def to_schema_types
@@ -56,17 +56,23 @@ module GraphqlGrpc
     end
 
     def to_schema_query
-      "type Query {
-  #{to_function_types(gql_queries)}
-  }"
+      return 'type Query {'\
+             '  # """This gRPC stub does not contain any methods that are mapped to '\
+             'GraphQL queries; this placeholder query field keeps the Query type from '\
+             'being empty which can break tools (GraphiQL) which expect Query to contain '\
+             'at least one field."""'\
+             '
+'\
+             '  grpcPlacholder: Url'\
+             '}' if gql_queries.empty?
+
+      "type Query { #{to_function_types(gql_queries)} }"
     end
 
     def to_schema_mutations
       return '' if gql_mutations.empty?
 
-      "type Mutation {
-  #{to_function_types(gql_mutations)}
-  }"
+      "type Mutation { #{to_function_types(gql_mutations)} }"
     end
 
     def to_gql_schema
