@@ -59,8 +59,8 @@ module GraphqlGrpc
       func
     end
 
-    def graphql
-      @graphql ||= ::GraphqlGrpc::Graphql.new(self, @error_presenter)
+    def invoke(field, args, ctx)
+      rpc(field.name, args.to_h, {})
     end
 
     # Execute a function with given params.

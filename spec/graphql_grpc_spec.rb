@@ -31,7 +31,7 @@ class TestResolver
       value = obj[field.name.to_sym]
       return value.kind_of?(Symbol) ? value.to_s : value
     end
-    proxy.graphql.invoke(field, args, ctx)
+    proxy.invoke(field, args, ctx)
   end
 
   def self.proxy
@@ -47,24 +47,29 @@ class TestResolver
   end
 
   def self.robot
-    ::RubyRobot::RubyRobot::Stub.new('localhost:31310', :this_channel_is_insecure)
+    @robot ||= ::RubyRobot::RubyRobot::Stub.new('localhost:31310', :this_channel_is_insecure)
   end
 end
 
 RSpec.describe GraphqlGrpc, type: :model do
   let(:schema_string) { proxy.to_gql_schema }
   let(:schema) { GraphQL::Schema.from_definition(schema_string, default_resolve: TestResolver) }
-  let(:robot) { ::RubyRobot::RubyRobot::Stub.new('localhost:31310', :this_channel_is_insecure) }
   let(:proxy) { TestResolver.proxy }
+  let(:robot) { TestResolver.robot }
+  let(:robot_report_response) do
+    {
+      current_state: {
+        x: 1,
+        y: 2,
+        direction: :NORTH
+      }
+    }
+  end
+
   before do
     allow(RubyRobot::RubyRobot::Stub).to receive(:new).and_return(robot)
-    # allow(robot).to receive(:Report).and_return({
-    #   current_state: {
-    #     x: 1,
-    #     y: 2,
-    #     direction: :NORTH
-    #   }
-    # })
+    # For now, just treat all gRPC calls as 'Report'
+    allow(robot).to receive(:send).and_return(robot_report_response)
   end
 
   describe 'When a schema is generated from a gRPC stub' do
@@ -97,6 +102,7 @@ RSpec.describe GraphqlGrpc, type: :model do
 
   describe 'Executing a query' do
     let(:parsed_query) { GraphQL::Language::Parser.parse(query_str) }
+    let(:response) { schema.execute(query_str, {}) }
 
     describe 'with a normal query' do
       let(:query_str) do
@@ -117,8 +123,11 @@ RSpec.describe GraphqlGrpc, type: :model do
 
       it 'succeeds' do
         parsed_query
-        response = schema.execute(query_str, {})
-        # puts response
+        response
+      end
+
+      it 'has expected fields' do
+        expect(response.dig('data', 'Report', 'current_state', 'direction')).to eql('NORTH')
       end
     end
     
@@ -137,6 +146,7 @@ RSpec.describe GraphqlGrpc, type: :model do
         fragment testFrag on RubyRobotRequest {
           testX:x
           testY:y
+          testDirection:direction
         }'
       end
 
@@ -147,7 +157,22 @@ RSpec.describe GraphqlGrpc, type: :model do
 
       it "succeeds with a 'direction'" do
         response = schema.execute(query_str, {})
-        expect(response.to_h.dig('data', 'Report', 'current_state', 'direction')).not_to be_nil
+        expect(
+          response.dig('data', 'Report', 'current_state', 'direction')
+        ).to eql('NORTH')
+      end
+
+      it "succeeds with fragment field 'textX' having the expected value" do
+        # puts response.to_h
+        expect(
+          response.dig('data', 'Report', 'current_state', 'testX')
+        ).to eql(1)
+      end
+
+      it "succeeds with fragment field 'textY' having the expected value" do
+        expect(
+          response.dig('data', 'Report', 'current_state', 'testY')
+        ).to eql(2)
       end
     end
   end
