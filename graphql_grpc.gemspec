@@ -41,7 +41,7 @@ Gem::Specification.new do |spec|
   # within bin/console env.
   spec.add_development_dependency 'guard-bundler'
   spec.add_development_dependency 'guard-rspec'
-  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'pry-byebug'
   spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'ruby_robot'
 end

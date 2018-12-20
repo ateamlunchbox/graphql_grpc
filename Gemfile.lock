@@ -17,9 +17,8 @@ GEM
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
     ast (2.4.0)
-    atlas-rb (1.0.11)
-      faraday
     bombshell (0.1.6)
+    byebug (10.0.2)
     coderay (1.1.2)
     concurrent-ruby (1.1.3)
     diff-lcs (1.3)
@@ -72,19 +71,12 @@ GEM
       ruby_dep (~> 1.2)
     lumberjack (1.0.13)
     memoist (0.16.0)
-    metatron (0.1.1)
     method_source (0.9.1)
     minitest (5.11.3)
     multi_json (1.13.1)
     multipart-post (2.0.0)
     mustermann (1.0.3)
     nenv (0.3.0)
-    nf-configuration (1.4.2)
-      grpc (~> 1.12.0)
-      rspec (~> 3.2)
-    nf-discovery (0.2.0)
-      grpc (= 1.12)
-      rspec (~> 3.2)
     notiffany (0.1.1)
       nenv (~> 0.1)
       shellany (~> 0.0)
@@ -96,6 +88,9 @@ GEM
     pry (0.12.0)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
+    pry-byebug (3.6.0)
+      byebug (~> 10.0)
+      pry (~> 0.10)
     public_suffix (3.0.3)
     rack (2.0.6)
     rack-protection (2.0.4)
@@ -105,8 +100,6 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
-    redis (4.0.3)
-    retries (0.0.5)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -137,14 +130,6 @@ GEM
       json-schema
       sinatra (~> 2.0)
       wirble
-    sdp-search (0.5.6.pre.rc.27)
-      atlas-rb (~> 1.0, >= 1.0.8)
-      grpc (~> 1.12, >= 1.12.0)
-      metatron (~> 0.1, >= 0.1.1)
-      nf-configuration (~> 1)
-      nf-discovery (~> 0)
-      redis
-      retries (~> 0.0.5)
     shellany (0.0.1)
     signet (0.11.0)
       addressable (~> 2.3)
@@ -172,11 +157,10 @@ DEPENDENCIES
   graphql_grpc!
   guard-bundler
   guard-rspec
-  pry
+  pry-byebug
   rake (~> 10.0)
   rubocop
   ruby_robot
-  sdp-search
   wirble
 
 BUNDLED WITH
