@@ -44,6 +44,10 @@ module GraphqlGrpc
       @output
     end
 
+    def invoke(field, args, ctx)
+      @proxy.rpc(field.name, args.to_h, {})
+    end
+
     private
 
     # Execute a GraphQL field as an RPC on the proxy.
