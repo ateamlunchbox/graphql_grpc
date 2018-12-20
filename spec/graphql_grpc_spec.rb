@@ -26,14 +26,6 @@ require 'graphql_grpc'
 require 'securerandom'
 
 class TestResolver
-  def self.call(_type, field, obj, args, ctx)
-    if obj
-      value = obj[field.name.to_sym]
-      return value.is_a?(Symbol) ? value.to_s : value
-    end
-    proxy.invoke(field, args, ctx)
-  end
-
   def self.proxy
     services = {
       # See: https://grpc.io/docs/tutorials/basic/ruby.html#creating-the-client
@@ -52,9 +44,14 @@ class TestResolver
 end
 
 RSpec.describe(GraphqlGrpc, type: :model) do
-  let(:schema_string) { proxy.to_gql_schema }
-  let(:schema) { GraphQL::Schema.from_definition(schema_string, default_resolve: TestResolver) }
   let(:proxy) { TestResolver.proxy }
+  let(:schema_string) { proxy.to_gql_schema }
+  let(:schema) do
+    GraphQL::Schema.from_definition(
+      schema_string,
+      default_resolve: GraphqlGrpc::Resolver.new(proxy)
+    )
+  end
   let(:robot) { TestResolver.robot }
   let(:robot_report_response) do
     {
