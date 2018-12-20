@@ -23,6 +23,7 @@
 require 'google/protobuf/empty_pb'
 
 module GraphqlGrpc
+  # :nodoc:
   module Schema
     # TODO: Find better way to detect queries
     # Currently look for methods named 'get' or with no args
@@ -56,7 +57,8 @@ module GraphqlGrpc
     end
 
     def to_schema_query
-      return 'type Query {'\
+      if gql_queries.empty?
+        'type Query {'\
              '  # """This gRPC stub does not contain any methods that are mapped to '\
              'GraphQL queries; this placeholder query field keeps the Query type from '\
              'being empty which can break tools (GraphiQL) which expect Query to contain '\
@@ -64,9 +66,10 @@ module GraphqlGrpc
              '
 '\
              '  grpcPlacholder: Url'\
-             '}' if gql_queries.empty?
-
-      "type Query { #{to_function_types(gql_queries)} }"
+             '}'
+      else
+        "type Query { #{to_function_types(gql_queries)} }"
+      end
     end
 
     def to_schema_mutations
@@ -76,7 +79,7 @@ module GraphqlGrpc
     end
 
     def to_gql_schema
-      <<EOF
+      <<GRAPHQL_SCHEMA
   #{to_schema_types}
   #{to_schema_query}
   #{to_schema_mutations}
@@ -84,7 +87,7 @@ module GraphqlGrpc
   query: Query
   #{gql_mutations.empty? ? '' : 'mutation: Mutation'}
   }
-EOF
+GRAPHQL_SCHEMA
     end
   end
 end

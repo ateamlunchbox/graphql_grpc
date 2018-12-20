@@ -26,10 +26,10 @@ require 'graphql_grpc'
 require 'securerandom'
 
 class TestResolver
-  def self.call(type, field, obj, args, ctx)
+  def self.call(_type, field, obj, args, ctx)
     if obj
       value = obj[field.name.to_sym]
-      return value.kind_of?(Symbol) ? value.to_s : value
+      return value.is_a?(Symbol) ? value.to_s : value
     end
     proxy.invoke(field, args, ctx)
   end

@@ -52,14 +52,14 @@ puts 'gRPC #report result: ' + proxy.report.to_s
 
 # GraphQL
 gql_query_doc = <<GRAPHQL_QUERY
-query {
-  report {
-    error {
-      error
-      message
+  query {
+    report {
+      error {
+        error
+        message
+      }
     }
   }
-}
 GRAPHQL_QUERY
 
 puts "GraphQL query result: " +

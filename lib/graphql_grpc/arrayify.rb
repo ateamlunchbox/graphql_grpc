@@ -21,18 +21,18 @@
 # SOFTWARE.
 
 module GraphqlGrpc
+  #
+  # Translate from gRPC hashmaps w/ integer keys to arrays of objects with
+  # 'key' and 'value' fields.
+  #
+  # Recursively descend through the hash; if any hashes are encountered where
+  # all the keys are integers, convert that hash into an array of hashes with
+  # [{ key: <integer_value>, value: <the_value> },
+  #  { key: <integer_value>, value: <the_value> },...]
+  #
+  # Example: {1: :hello, 2: :world} => [{key:1, value: :hello}, {key:2, value: :world}]
+  #
   module Arrayify
-    #
-    # Translate from gRPC hashmaps w/ integer keys to arrays of objects with
-    # 'key' and 'value' fields.
-    #
-    # Recursively descend through the hash; if any hashes are encountered where
-    # all the keys are integers, convert that hash into an array of hashes with
-    # [{ key: <integer_value>, value: <the_value> },
-    #  { key: <integer_value>, value: <the_value> },...]
-    #
-    # Example: {1: :hello, 2: :world} => [{key:1, value: :hello}, {key:2, value: :world}]
-    #
     def arrayify_hashes(input)
       case input.class.name.to_sym
       when :Array
@@ -40,9 +40,9 @@ module GraphqlGrpc
       when :Hash
         if input.keys.map(&:class).compact.sort.uniq == [Fixnum]
           arr = input.to_a.map { |e| { key: e.first, value: e.last } }
-          result = arrayify_hashes(arr)
+          arrayify_hashes(arr)
         else
-          input.each { |k,v| input[k] = arrayify_hashes(v) }
+          input.each { |k, v| input[k] = arrayify_hashes(v) }
         end
       else
         input

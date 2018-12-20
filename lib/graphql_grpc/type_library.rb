@@ -67,9 +67,9 @@ module GraphqlGrpc
     def to_gql_type(prefix = '')
       if entries.any?
       <<EOF
-#{input_or_type(prefix)} #{prefix}#{type_name} {
-  #{types(prefix).join("\n  ")}
-}
+  #{input_or_type(prefix)} #{prefix}#{type_name} {
+    #{types(prefix).join("\n  ")}
+  }
 EOF
       else
         # For now, treat empty types as scalars
@@ -229,12 +229,10 @@ module GraphqlGrpc
       # as is the case when a google.protobuf.Empty object is declared
       # as the argument for a gRPC call that is being mapped to a
       # GraphQL query.
-      @descriptors.delete_if do |key, descriptor|
-
-        if (descriptor.name.start_with?('google.protobuf') &&
-            descriptor.respond_to?(:sub_types) &&
-            descriptor.sub_types.empty?
-        )
+      @descriptors.delete_if do |_key, descriptor|
+        if descriptor.name.start_with?('google.protobuf') &&
+           descriptor.respond_to?(:sub_types) &&
+           descriptor.sub_types.empty?
           true
         else
           false
