@@ -38,7 +38,8 @@ module GraphqlGrpc
       when :Array
         input.map { |i| arrayify_hashes(i) }
       when :Hash
-        if input.keys.map(&:class).compact.sort.uniq == [Fixnum]
+        input_types = input.keys.map(&:class).compact.sort.uniq
+        if input_types.inject(true) { |tf, val| val.ancestors.include?(Integer) && tf }
           arr = input.to_a.map { |e| { key: e.first, value: e.last } }
           arrayify_hashes(arr)
         else

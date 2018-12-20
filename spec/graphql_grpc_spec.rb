@@ -51,7 +51,7 @@ class TestResolver
   end
 end
 
-RSpec.describe GraphqlGrpc, type: :model do
+RSpec.describe(GraphqlGrpc, type: :model) do
   let(:schema_string) { proxy.to_gql_schema }
   let(:schema) { GraphQL::Schema.from_definition(schema_string, default_resolve: TestResolver) }
   let(:proxy) { TestResolver.proxy }
@@ -90,7 +90,9 @@ RSpec.describe GraphqlGrpc, type: :model do
     end
 
     it 'produces a schema that responds to graphiql queries' do
-      graphiql_query = '{"query":"\n  query IntrospectionQuery {\n    __schema {\n      queryType { name }\n      mutationType { name }\n      subscriptionType { name }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        args {\n          ...InputValue\n        }\n        onOperation\n        onFragment\n        onField\n      }\n    }\n  }\n\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n\n  fragment InputValue on __InputValue {\n    name\n    description\n    type { ...TypeRef }\n    defaultValue\n  }\n\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n        }\n      }\n    }\n  }\n"}'
+      graphiql_query = '{"query":"\n  query IntrospectionQuery {\n    __schema '\
+      '{\n      queryType { name }\n      mutationType { name }\n      '\
+      'subscriptionType { name }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        args {\n          ...InputValue\n        }\n        onOperation\n        onFragment\n        onField\n      }\n    }\n  }\n\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n\n  fragment InputValue on __InputValue {\n    name\n    description\n    type { ...TypeRef }\n    defaultValue\n  }\n\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n        }\n      }\n    }\n  }\n"}'
       params = JSON.parse(graphiql_query)
       # puts proxy.to_gql_schema
       query = GraphQL::Language::Parser.parse(params['query'])
@@ -184,9 +186,7 @@ RSpec.describe GraphqlGrpc, type: :model do
       expected_output = [{ key: 1, value: :hello }, { key: 2, value: :world }]
       o = Object.new
       o.extend GraphqlGrpc::Arrayify
-      expect(o.arrayify_hashes(test_hash)).to(
-        eql(expected_output)
-      )
+      expect(o.arrayify_hashes(test_hash)).to(eql(expected_output))
     end
 
     it 'should arrayify hashes with nested arrays and hashes '\
@@ -195,9 +195,7 @@ RSpec.describe GraphqlGrpc, type: :model do
       expected_output = [{ key: 1, value: :hello }, { key: 2, value: [1, [{ key: 5, value: :world }]] }]
       o = Object.new
       o.extend GraphqlGrpc::Arrayify
-      expect(o.arrayify_hashes(test_hash)).to(
-        eql(expected_output)
-      )
+      expect(o.arrayify_hashes(test_hash)).to(eql(expected_output))
     end
   end
 end
