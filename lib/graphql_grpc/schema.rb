@@ -32,12 +32,20 @@ module GraphqlGrpc
         rpc_desc.rpc_desc.input == Google::Protobuf::Empty
     end
 
+    def streaming_response?(rpc_desc)
+      rpc_desc&.rpc_desc&.output.class == GRPC::RpcDesc::Stream
+    end
+
     def gql_mutations
-      @function_map.reject { |name_sym, rpc_desc| query?(name_sym, rpc_desc) }
+      @function_map.reject do |name_sym, rpc_desc|
+        query?(name_sym, rpc_desc) || streaming_response?(rpc_desc)
+      end
     end
 
     def gql_queries
-      @function_map.select { |name_sym, rpc_desc| query?(name_sym, rpc_desc) }
+      @function_map.select do |name_sym, rpc_desc|
+        query?(name_sym, rpc_desc) && !streaming_response?(rpc_desc)
+      end
     end
 
     def to_schema_types

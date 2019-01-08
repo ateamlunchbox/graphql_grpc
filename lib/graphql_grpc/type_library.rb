@@ -211,9 +211,9 @@ module GraphqlGrpc
     end
 
     def to_schema_types
-      @descriptors.values.map do |t|
+      @descriptors.values.compact.map do |t|
         t.to_gql_type(type_prefix)
-      end.compact.sort.uniq.join("\n")
+      end.sort.uniq.join("\n")
     end
   end
 

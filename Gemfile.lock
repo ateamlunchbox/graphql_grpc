@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    graphql_grpc (0.1.5)
+    graphql_grpc (0.1.6)
       activesupport
       graphql
       grpc
