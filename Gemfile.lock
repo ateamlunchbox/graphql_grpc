@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    graphql_grpc (0.1.6)
+    graphql_grpc (0.1.7)
       activesupport
       graphql
       grpc
@@ -164,4 +164,4 @@ DEPENDENCIES
   wirble
 
 BUNDLED WITH
-   1.16.2
+   1.17.3
