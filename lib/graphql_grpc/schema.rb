@@ -37,20 +37,18 @@ module GraphqlGrpc
     end
 
     def gql_mutations
-      @function_map.reject do |name_sym, rpc_desc|
-        query?(name_sym, rpc_desc) || streaming_response?(rpc_desc)
-      end
+      @function_map.reject { |name_sym, rpc_desc| query?(name_sym, rpc_desc) }
     end
 
     def gql_queries
-      @function_map.select do |name_sym, rpc_desc|
-        query?(name_sym, rpc_desc) && !streaming_response?(rpc_desc)
-      end
+      @function_map.select { |name_sym, rpc_desc| query?(name_sym, rpc_desc) }
     end
 
     def to_schema_types
       function_output_types = @function_map.values.map do |function|
-        function.rpc_desc.output
+        function.rpc_desc.output.is_a?(
+          GRPC::RpcDesc::Stream
+        ) ? function.rpc_desc.output.type : function.rpc_desc.output
       end.flatten.uniq
       output_types = TypeLibrary.new(function_output_types)
       function_input_types = @function_map.values.map do |function|

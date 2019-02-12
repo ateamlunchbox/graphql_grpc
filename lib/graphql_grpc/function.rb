@@ -60,7 +60,9 @@ module GraphqlGrpc
     end
 
     def output_type
-      rpc_desc.output.to_s.split(':').last
+      begin
+        rpc_desc.output.is_a?(GRPC::RpcDesc::Stream) ? rpc_desc.output.type : rpc_desc.output
+      end.to_s.split(':').last
     end
 
     def to_query_type

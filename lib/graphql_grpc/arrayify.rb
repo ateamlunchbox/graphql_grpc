@@ -39,7 +39,7 @@ module GraphqlGrpc
         input.map { |i| arrayify_hashes(i) }
       when :Hash
         input_types = input.keys.map(&:class).compact.sort.uniq
-        if input_types.inject(true) { |tf, val| val.ancestors.include?(Integer) && tf }
+        if input_types.inject(true) { |tf, val| val.ancestors.include?(numeric_klass) && tf }
           arr = input.to_a.map { |e| { key: e.first, value: e.last } }
           arrayify_hashes(arr)
         else
@@ -47,6 +47,12 @@ module GraphqlGrpc
         end
       else
         input
+      end
+    end
+
+    def numeric_klass
+      @numeric_klass ||= begin
+        Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.4.0') ? Fixnum : Integer
       end
     end
   end
