@@ -8,7 +8,8 @@ module GraphqlGrpc
 
     def call(_type, field, obj, args, ctx)
       if obj
-        value = obj[field.name.to_sym]
+        field_sym = field.name.to_sym
+        value = obj.try(field_sym) || obj[field_sym]
         return value.is_a?(Symbol) ? value.to_s : value
       end
       proxy.invoke(field, args, ctx)

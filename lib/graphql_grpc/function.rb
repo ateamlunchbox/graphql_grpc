@@ -60,9 +60,10 @@ module GraphqlGrpc
     end
 
     def output_type
-      begin
-        rpc_desc.output.is_a?(GRPC::RpcDesc::Stream) ? rpc_desc.output.type : rpc_desc.output
+      out_type = begin
+        streaming? ? rpc_desc.output.type : rpc_desc.output
       end.to_s.split(':').last
+      streaming? ? "[#{out_type}]" : out_type
     end
 
     def to_query_type
@@ -86,11 +87,22 @@ module GraphqlGrpc
 
     def call(params = {}, metadata = {})
       args = [name, arg(params || {}), metadata: metadata]
-      result_hash = @service_stub.send(*args).to_hash
-      arrayify_hashes(result_hash)
+      arrayify_hashes normalize_result @service_stub.send(*args)
     end
 
     private
+
+    def normalize_result(result)
+      if result.is_a?(Enumerator)
+        [].tap { |arr| result.each { |e| arr << e } }
+      else
+        result.to_hash
+      end
+    end
+
+    def streaming?
+      rpc_desc.output.is_a?(GRPC::RpcDesc::Stream)
+    end
 
     # Build arguments to a func
     def arg(params)
