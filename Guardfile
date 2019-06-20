@@ -64,7 +64,7 @@ guard :rspec, cmd: 'bundle exec rspec' do
   watch(rails.view_dirs)     { |m| rspec.spec.call("features/#{m[1]}") }
   watch(rails.layouts)       { |m| rspec.spec.call("features/#{m[1]}") }
 
-  watch(%r{^lib/graphql_grpc/(.+)\.rb}) { |_m| rspec.spec.call('graphql_grpc') }
+  watch(%r{^lib/graphql_grpc/**/(.+)\.rb}) { |_m| rspec.spec.call('graphql_grpc') }
   watch(%r{^doc/(.+)}) { |_m| rspec.spec.call('graphql_grpc') }
 
   # Turnip features and steps
