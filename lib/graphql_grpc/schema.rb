@@ -26,9 +26,10 @@ module GraphqlGrpc
   # :nodoc:
   module Schema
     # TODO: Find better way to detect queries
-    # Currently look for methods named 'get' or with no args
+    # Currently look for methods named 'get', 'find' or with no args
     def query?(name_sym, rpc_desc)
       name_sym.to_s.start_with?('get') ||
+        name_sym.to_s.start_with?('find') ||
         rpc_desc.rpc_desc.input == Google::Protobuf::Empty
     end
 

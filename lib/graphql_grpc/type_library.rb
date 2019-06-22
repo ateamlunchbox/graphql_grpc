@@ -34,7 +34,9 @@ module GraphqlGrpc
     #
     # Return an array of all (recursive) types known within this type
     #
-    def sub_types
+    def sub_types(known_types=[])
+      return known_types if known_types.include?(name)
+
       # Iterate through the Google::Protobuf::FieldDescriptor list
       entries.map do |fd|
         # fd.name = 'current_entity_to_update'
@@ -43,12 +45,11 @@ module GraphqlGrpc
         # fd.submsg_name = "com.foo.bar.Baz"
         # fd.subtype = #<Google::Protobuf::Descriptor:0x007fabb3947f08>
         if fd.subtype.class == Google::Protobuf::Descriptor
-          # There is a subtype; recurse
-          [name, fd.submsg_name] + fd.subtype.sub_types
+          [name, fd.subtype.sub_types(known_types + [name])].flatten
         else
           [name, fd.submsg_name]
         end
-      end.flatten.compact
+      end.flatten.compact.uniq
     end
 
     def type_name
