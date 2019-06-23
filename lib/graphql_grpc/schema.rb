@@ -1,3 +1,4 @@
+# typed: true
 # MIT License
 #
 # Copyright (c) 2018, Dane Avilla
@@ -21,10 +22,17 @@
 # SOFTWARE.
 
 require 'google/protobuf/empty_pb'
+require 'sorbet-runtime'
 
 module GraphqlGrpc
   # :nodoc:
   module Schema
+    extend T::Sig
+
+    sig {
+      params(name_sym: Symbol, rpc_desc: GraphqlGrpc::Function)
+      .returns(T.any(TrueClass, FalseClass))
+    }
     # TODO: Find better way to detect queries
     # Currently look for methods named 'get', 'find' or with no args
     def query?(name_sym, rpc_desc)
@@ -33,6 +41,7 @@ module GraphqlGrpc
         rpc_desc.rpc_desc.input == Google::Protobuf::Empty
     end
 
+    sig { params(rpc_desc: GraphqlGrpc::Function).returns(T.any(TrueClass, FalseClass)) }
     def streaming_response?(rpc_desc)
       rpc_desc&.rpc_desc&.output.class == GRPC::RpcDesc::Stream
     end
@@ -63,6 +72,7 @@ module GraphqlGrpc
       ggg_function_hash.values.sort_by(&:name).map(&:to_query_type).join("\n  ")
     end
 
+    sig { returns(String) }
     def to_schema_query
       if gql_queries.empty?
         'type Query {'\
@@ -79,12 +89,14 @@ module GraphqlGrpc
       end
     end
 
+    sig { returns(String) }
     def to_schema_mutations
       return '' if gql_mutations.empty?
 
       "type Mutation { #{to_function_types(gql_mutations)} }"
     end
 
+    sig { returns(String) }
     def to_gql_schema
       <<GRAPHQL_SCHEMA
   #{to_schema_types}

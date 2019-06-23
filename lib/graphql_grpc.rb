@@ -1,3 +1,4 @@
+# typed: strong
 require 'grpc'
 require 'graphql_grpc/version'
 require 'graphql_grpc/arrayify'

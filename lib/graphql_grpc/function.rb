@@ -1,3 +1,4 @@
+# typed: false
 # MIT License
 #
 # Copyright (c) 2018, Zane Claes
@@ -21,6 +22,7 @@
 # SOFTWARE.
 
 require 'graphql'
+require 'sorbet-runtime'
 
 #
 # Hmm...override the InputObject definition so it actually
@@ -37,6 +39,8 @@ module GraphqlGrpc
   # Storage for an actual function definition.
   # Implements a `call` method so that it may be invoked with a simple hash of params.
   class Function
+    extend T::Sig
+
     attr_reader :service_name, :name, :rpc_desc
 
     def initialize(service_name, service_stub, rpc_desc)
@@ -46,19 +50,23 @@ module GraphqlGrpc
       @name = ::GRPC::GenericService.underscore(rpc_desc.name.to_s).to_sym
     end
 
+    sig { returns(String) }
     def to_s
       "<GrpcFunction #{service_name}##{name} >"
     end
 
+    sig { returns(String) }
     def function_args
       result = TypeLibrary.descriptor_for(rpc_desc.input).types(InputTypeLibrary::PREFIX)
       result.any? ? "(#{result.join(', ')})" : ''
     end
 
+    sig { returns(String) }
     def input_type
       rpc_desc.input.to_s.split(':').last
     end
 
+    sig { returns(String) }
     def output_type
       out_type = begin
         streaming? ? rpc_desc.output.type : rpc_desc.output
@@ -66,6 +74,7 @@ module GraphqlGrpc
       streaming? ? "[#{out_type}]" : out_type
     end
 
+    sig { returns(String) }
     def to_query_type
       # Turns out the single *Request type should NOT be the single arg.
       #

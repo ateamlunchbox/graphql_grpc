@@ -1,3 +1,4 @@
+# typed: false
 # MIT License
 #
 # Copyright (c) 2018, Dane Avilla

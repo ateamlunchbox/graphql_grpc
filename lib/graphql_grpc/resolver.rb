@@ -1,9 +1,15 @@
+# typed: true
+require 'sorbet-runtime'
+
 module GraphqlGrpc
   class Resolver
+    extend T::Sig
+
     def initialize(proxy)
       @proxy = proxy
     end
 
+    sig { returns(GraphqlGrpc::Proxy) }
     attr_reader :proxy
 
     def call(_type, field, obj, args, ctx)

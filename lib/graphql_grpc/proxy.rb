@@ -1,3 +1,4 @@
+# typed: true
 # MIT License
 #
 # Copyright (c) 2018, Zane Claes
@@ -21,6 +22,8 @@
 # SOFTWARE.
 
 require 'active_support/core_ext/string'
+require 'sorbet-runtime'
+
 module GraphqlGrpc
   class GrpcGatewayError < StandardError; end
   class HealthError < GrpcGatewayError; end
@@ -28,11 +31,22 @@ module GraphqlGrpc
   class RpcNotFoundError < GrpcGatewayError; end
 
   class Proxy
+    extend T::Sig
+
     include GraphqlGrpc::Schema
+
+    sig { returns(Hash) }
     attr_reader :services
 
     # @param stub_services [Hash] mapping of a service_name to an instance of a stub service.
     # @param error_presenter [Proc] a method that turns exceptions into a hash.
+    sig do
+      params(
+        stub_services: Hash,
+        block: T.proc.params(a: StandardError)
+                     .returns(Hash)
+      ).returns(T::Hash[Symbol, GraphqlGrpc::Function])
+    end
     def initialize(stub_services = {}, &block)
       @function_map = {} # func name => hash containing details
       @services = {}
@@ -50,6 +64,10 @@ module GraphqlGrpc
       end]
     end
 
+    sig do
+      params(function_name: String, noisy: T::Boolean)
+        .returns(T.any(GraphqlGrpc::Function, NilClass, T.noreturn))
+    end
     def function(function_name, noisy = true)
       # function_name is a symbol; calling #to_s and #underscore calls #gsub! on it
       # and it is frozen; so #dup first.
@@ -65,9 +83,12 @@ module GraphqlGrpc
 
     # Execute a function with given params.
     def rpc(function_name, params = {}, metadata = {})
-      function(function_name).call(params, metadata || {})
+      # Use Sorbet `T#must` since `#function` will raise an exception since
+      # default value of `noisy` arg is `true`.
+      T.must(function(function_name)).call(params, metadata || {})
     end
 
+    sig { params(method: String, _include_private: T::Boolean).returns(T::Boolean) }
     def respond_to_missing?(method, _include_private = false)
       !!function(method, false)
     end

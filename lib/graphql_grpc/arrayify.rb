@@ -1,3 +1,4 @@
+# typed: true
 # MIT License
 #
 # Copyright (c) 2018, Dane Avilla
@@ -20,6 +21,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+require 'sorbet-runtime'
+
 module GraphqlGrpc
   #
   # Translate from gRPC hashmaps w/ integer keys to arrays of objects with
@@ -33,6 +36,8 @@ module GraphqlGrpc
   # Example: {1: :hello, 2: :world} => [{key:1, value: :hello}, {key:2, value: :world}]
   #
   module Arrayify
+    extend T::Sig
+
     def arrayify_hashes(input)
       case input.class.name.to_sym
       when :Array
