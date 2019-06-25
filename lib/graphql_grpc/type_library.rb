@@ -164,9 +164,18 @@ module GraphqlGrpc
         @descriptors[java_class_name] ||= descriptor
         # Recurse
         build_descriptors(descriptor.sub_types) if descriptor.respond_to?(:sub_types)
+        # Some types aren't found from #sub_types; iterate #entries of
+        # type :message to get those.
+        if descriptor.respond_to?(:entries)
+          build_descriptors(
+              descriptor.entries
+                        .select { |e| e.try(:type) == :message }
+                        .map(&:submsg_name)
+                        .uniq
+          )
+        end
       end
     end
-
     #
     # generated_klass - a class created by the 'proto' compiler; maps
     # to a Descriptor in the generated pool.
