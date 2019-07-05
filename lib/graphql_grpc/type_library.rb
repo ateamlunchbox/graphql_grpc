@@ -92,7 +92,7 @@ EOF
             'String'
           when :bool, :boolean
             'Boolean'
-          when :double
+          when :double, :float
             'Float'
           when :message
             prefix + submsg_name.to_s.split('.').last
