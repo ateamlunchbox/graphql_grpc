@@ -25,6 +25,7 @@ require 'google/protobuf/empty_pb'
 module GraphqlGrpc
   # :nodoc:
   module Schema
+    QUERY_PREFIX_ENV_VAR = 'GRAPHQL_GRPC_QUERY_PREFIXES'
     # TODO: Find better way to detect queries
     # Currently look for methods named 'get', 'find' or with no args
     def query?(name_sym, rpc_desc)
@@ -100,7 +101,7 @@ GRAPHQL_SCHEMA
     private
 
     def prefixes
-      @prefixes ||= (ENV['GRAPHQL_GRPC_QUERY_PREFIXES'].strip.split(',') || ['get', 'find'])
+      @prefixes ||= (ENV[QUERY_PREFIX_ENV_VAR]&.strip&.split(',') || ['get', 'find'])
     end
   end
 end

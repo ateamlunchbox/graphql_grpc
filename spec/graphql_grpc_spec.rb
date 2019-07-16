@@ -176,6 +176,23 @@ RSpec.describe(GraphqlGrpc, type: :model) do
     end
   end
 
+  describe 'Reading from env vars' do
+    context 'with env var defined' do
+      before { ENV[GraphqlGrpc::Schema::QUERY_PREFIX_ENV_VAR] = 'place' }
+
+      it 'excludes a mutation type' do
+        expect(schema_string.downcase).not_to include('mutation')
+      end
+    end
+    context 'without env var defined' do
+      before { ENV[GraphqlGrpc::Schema::QUERY_PREFIX_ENV_VAR] = nil }
+
+      it 'includes mutation type' do
+        expect(schema_string.downcase).to include('mutation')
+      end
+    end
+  end
+
   describe 'For converting hashes to arrays of hashes' do
     it 'converts nested hashes with integer keys into arrays of hashes with keys '\
        "of 'key' and 'value'" do
