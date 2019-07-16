@@ -28,9 +28,9 @@ module GraphqlGrpc
     # TODO: Find better way to detect queries
     # Currently look for methods named 'get', 'find' or with no args
     def query?(name_sym, rpc_desc)
-      name_sym.to_s.start_with?('get') ||
-        name_sym.to_s.start_with?('find') ||
-        rpc_desc.rpc_desc.input == Google::Protobuf::Empty
+      name_str = name_sym.to_s
+      prefixes.each { |prefix| return true if name_str.start_with?(prefix) }
+      rpc_desc.rpc_desc.input == Google::Protobuf::Empty
     end
 
     def streaming_response?(rpc_desc)
@@ -95,6 +95,12 @@ module GraphqlGrpc
   #{gql_mutations.empty? ? '' : 'mutation: Mutation'}
   }
 GRAPHQL_SCHEMA
+    end
+
+    private
+
+    def prefixes
+      @prefixes ||= (ENV['GRAPHQL_GRPC_QUERY_PREFIXES'].strip.split(',') || ['get', 'find'])
     end
   end
 end
