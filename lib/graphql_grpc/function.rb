@@ -96,7 +96,13 @@ module GraphqlGrpc
       if result.is_a?(Enumerator)
         [].tap { |arr| result.each { |e| arr << e } }
       else
-        result.to_hash
+        if result.respond_to?(:to_hash)
+          result.to_hash
+        elsif result.respond_to?(:to_h)
+          result.to_h
+        else
+          raise NotImplementedError
+        end
       end
     end
 
